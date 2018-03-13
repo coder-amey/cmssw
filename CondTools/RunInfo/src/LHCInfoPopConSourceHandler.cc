@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "RelationalAccess/ITable.h"
+#include "RelationalAccess/IView.h"
 #include "RelationalAccess/ITableDescription.h"
 #include "RelationalAccess/IColumn.h"
 
@@ -208,7 +209,7 @@ std::cout << "\nDetailed Table Description:\nTable Name:\t\tNo. of Columns:\n(Co
 for(I = List.begin(); I != List.end(); ++I)
 {
     try{
-			coral::ITable& fillTable = S.viewHandle(*I);
+			coral::IView& fillTable = S.viewHandle(*I);
 			/*const coral::ITableDescription& description = fillTable.description();
 			int c = description.numberOfColumns();
 			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
@@ -217,7 +218,7 @@ for(I = List.begin(); I != List.end(); ++I)
 			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
 			for(int i = 0; i < c; i++)
 			{
-				const coral::IColumn& col = fillTable.columnDescription(i);
+				const coral::IColumn& col = fillTable.column(i);
 				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
 			}
 			std::cout << std::endl;
