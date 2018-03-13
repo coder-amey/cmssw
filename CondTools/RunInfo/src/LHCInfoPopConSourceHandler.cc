@@ -568,38 +568,30 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 	//execute query for ECAL Data
 	std::unique_ptr<coral::IQuery> ECALDataQuery( ECAL.newQuery() );
 	//FROM clause
-	ECALDataQuery->addToTableList( std::string( "CMSFWMAGNET_LV" ) ); //DPID (float)
-        DPE_NAME (string)
-        CHANGE_DATE (time stamp)
-        DPE_STATUS (float)
-        DPE_POSITION (float)
-        VALUE_STRING (string)
-        VALUE_NUMBER (float)
-        OLD_VALUE_NUMBER (float)
-        VALUE_TIMESTAMP (time stamp)
+	ECALDataQuery->addToTableList( std::string( "CMSFWMAGNET_LV" ) );
 	//SELECT clause
-	ECALDataQuery->addToOutputList( std::string( "DPID" ) );
+	/*ECALDataQuery->addToOutputList( std::string( "DPID" ) );
 	ECALDataQuery->addToOutputList( std::string( "CHANGE_DATE" ) );
 	ECALDataQuery->addToOutputList( std::string( "VALUE_STRING" ) );
 	ECALDataQuery->addToOutputList( std::string( "VALUE_NUMBER" ) );
-	ECALDataQuery->addToOutputList( std::string( "VALUE_TIMESTAMP" ) );
+	*/ECALDataQuery->addToOutputList( std::string( "COUNT(VALUE_NUMBER)" ) );
 	//WHERE CLAUSE
-	coral::AttributeList ECALDataBindVariables;
+	/*coral::AttributeList ECALDataBindVariables;
 	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
     	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
     	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
     	ECALDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
 	conditionStr = std::string( "CHANGE_DATE BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp" );
-	ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
+	//ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
 	//ORDER BY clause
 	ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
 	//define query output
-	coral::AttributeList ECALDataOutput;
+	*/coral::AttributeList ECALDataOutput;/*
 	ECALDataOutput.extend<float>( std::string( "DPID" ) );
 	ECALDataOutput.extend<coral::TimeStamp>( std::string( "CHANGE_DATE" ) );
 	ECALDataOutput.extend<std::string>( std::string( "VALUE_STRING" ) );
 	ECALDataOutput.extend<float>( std::string( "VALUE_NUMBER" ) );
-	ECALDataOutput.extend<coral::TimeStamp>( std::string( "VALUE_TIMESTAMP" ) );
+	*/ECALDataOutput.extend<int>( std::string( "COUNT" ) );
 	//!!!!!!!!!!!!!!!!!!!!!!!!ECALDataQuery->limitReturnedRows( 1 ); //Only one entry per payload.
 	ECALDataQuery->defineOutput( ECALDataOutput );
 	//execute the query
@@ -608,7 +600,7 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 	//!!!!!!!!!!!!!!!!!unsigned int lumiSection;
 
 	if( ECALDataCursor.next() ) {
-		if( m_debug || true ) { //!!!!!!!!!!
+		if( m_debug || true ) { //m_debug
 		    std::ostringstream ECAL;
 		    ECALDataCursor.currentRow().toOutputStream( ECAL );
 		    edm::LogInfo( m_name ) << ECAL.str() << "\nfrom " << m_name << "::getNewObjects";
@@ -645,7 +637,7 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 	//commit the transaction against the ECAL schema
 	session.transaction().commit();
 	  
-	  
+	continue; //Prevent fill.  
     //store dummy fill information if empty fills are found beetween the two last ones in stable beams
     afterPreviousFillEndTime  = cond::time::pack( std::make_pair( cond::time::unpack( previousFillEndTime ).first, cond::time::unpack( previousFillEndTime ).second + 1 ) );
     beforeStableBeamStartTime = cond::time::pack( std::make_pair( cond::time::unpack( stableBeamStartTime ).first, cond::time::unpack( stableBeamStartTime ).second - 1 ) );
