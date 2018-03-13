@@ -193,12 +193,11 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 
 //CODE FOR DUMPING SCHEMA DESCRIPTION.
 //Initializing the CMS_BEAM_COND schema.
-	/*
 coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
 session.transaction().start( true );
 std::cout<<"\n\n\n--------------------------"<<std::endl;
 std::cout << "Qurying CMS_DCS_ENV_PVSS_COND schema:\n";
-std::set<std::string> List = S.listTables();
+std::set<std::string> List = S.listViews();
 std::cout << "Schema Description:\n";
 std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
 std::set<std::string>::iterator I;
@@ -209,13 +208,16 @@ std::cout << "\nDetailed Table Description:\nTable Name:\t\tNo. of Columns:\n(Co
 for(I = List.begin(); I != List.end(); ++I)
 {
     try{
-			coral::ITable& fillTable = S.tableHandle(*I);
-			const coral::ITableDescription& description = fillTable.description();
+			coral::ITable& fillTable = S.viewHandle(*I);
+			/*const coral::ITableDescription& description = fillTable.description();
 			int c = description.numberOfColumns();
 			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
+			*/
+			int c = fillTable.numberOfColumns();
+			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
 			for(int i = 0; i < c; i++)
 			{
-				const coral::IColumn& col = description.columnDescription(i);
+				const coral::IColumn& col = fillTable.columnDescription(i);
 				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
 			}
 			std::cout << std::endl;
@@ -226,6 +228,7 @@ for(I = List.begin(); I != List.end(); ++I)
 				std::cout << "Exception encountered for table:  " << *I << "\n\n";
 		}
 }
+/*
 try{
 			coral::ITable& fillTable = S.tableHandle("CMS_LHC_LUMIPERBUNCH");
 			const coral::ITableDescription& description = fillTable.description();
@@ -244,56 +247,9 @@ catch(std::exception E)
 {
 	std::cout << "Exception encountered!\n\n";
 }
-
+*/
 session.transaction().commit();
 std::cout<<"--------------------------\n\n\n"<<std::endl;
-*/
-	//run the sixth query against the ECAL schema
-	//Initializing the CMS_DCS_ENV_PVSS_COND schema.
-	coral::ISchema& ECAL = session.coralSession().schema("CMS_DCS_ENV_PVSS_COND");
-	session.transaction().start( true );
-	//execute query for ECAL Data
-	std::unique_ptr<coral::IQuery> ECALDataQuery( ECAL.newQuery() );
-	//FROM clause
-	ECALDataQuery->addToTableList( std::string( "CMSFWMAGNET_LV" ) );
-	//SELECT clause
-	/*ECALDataQuery->addToOutputList( std::string( "DPID" ) );
-	ECALDataQuery->addToOutputList( std::string( "CHANGE_DATE" ) );
-	ECALDataQuery->addToOutputList( std::string( "VALUE_STRING" ) );
-	ECALDataQuery->addToOutputList( std::string( "VALUE_NUMBER" ) );
-	*/ECALDataQuery->addToOutputList( std::string( "COUNT(VALUE_NUMBER)" ) );
-	//WHERE CLAUSE
-	/*coral::AttributeList ECALDataBindVariables;
-	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
-    	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
-    	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
-    	ECALDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
-	conditionStr = std::string( "CHANGE_DATE BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp" );
-	//ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
-	//ORDER BY clause
-	ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
-	//define query output
-	*/coral::AttributeList ECALDataOutput;/*
-	ECALDataOutput.extend<float>( std::string( "DPID" ) );
-	ECALDataOutput.extend<coral::TimeStamp>( std::string( "CHANGE_DATE" ) );
-	ECALDataOutput.extend<std::string>( std::string( "VALUE_STRING" ) );
-	ECALDataOutput.extend<float>( std::string( "VALUE_NUMBER" ) );
-	*/ECALDataOutput.extend<int>( std::string( "COUNT" ) );
-	//!!!!!!!!!!!!!!!!!!!!!!!!ECALDataQuery->limitReturnedRows( 1 ); //Only one entry per payload.
-	ECALDataQuery->defineOutput( ECALDataOutput );
-	//execute the query
-	coral::ICursor& ECALDataCursor = ECALDataQuery->execute();
-	//!!!!!!!!!!!!!!!std::string lhcState, lhcComment, ECALStatus;
-	//!!!!!!!!!!!!!!!!!unsigned int lumiSection;
-
-	if( ECALDataCursor.next() ) {
-		if( m_debug || true ) { //m_debug
-		    std::ostringstream ECAL;
-		    ECALDataCursor.currentRow().toOutputStream( ECAL );
-		    edm::LogInfo( m_name ) << ECAL.str() << "\nfrom " << m_name << "::getNewObjects";
-		}
-	}
-
 //Prevent unnecessary execution of code.
 //Note remove the while loop to populate the database.
 	while( fillDataCursor.next() );
