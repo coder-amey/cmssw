@@ -198,7 +198,7 @@ coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
 session.transaction().start( true );
 std::cout<<"\n\n\n--------------------------"<<std::endl;
 std::cout << "Qurying CMS_DCS_ENV_PVSS_COND schema:\n";
-std::set<std::string> List = S.listViews();
+/*std::set<std::string> List = S.listViews();
 std::cout << "Schema Description:\n";
 std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
 std::set<std::string>::iterator I;
@@ -210,10 +210,12 @@ for(I = List.begin(); I != List.end(); ++I)
 {
     try{
 			coral::IView& fillTable = S.viewHandle(*I);
+			*/
 			/*const coral::ITableDescription& description = fillTable.description();
 			int c = description.numberOfColumns();
 			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
 			*/
+			/*
 			int c = fillTable.numberOfColumns();
 			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
 			for(int i = 0; i < c; i++)
@@ -229,18 +231,16 @@ for(I = List.begin(); I != List.end(); ++I)
 				std::cout << "Exception encountered for table:  " << *I << "\n\n";
 		}
 }
-/*
+*/
 try{
-			coral::ITable& fillTable = S.tableHandle("CMS_LHC_LUMIPERBUNCH");
-			const coral::ITableDescription& description = fillTable.description();
-			int c = description.numberOfColumns();
+			coral::IView& fillTable = S.viewHandle(std::string("BEAM_PHASE"));
+			int c = fillTable.numberOfColumns();
+			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
 			for(int i = 0; i < c; i++)
 			{
-				const coral::IColumn& col = description.columnDescription(i);
+				const coral::IColumn& col = fillTable.column(i);
 				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
 			}
-			int k = description.numberOfForeignKeys();
-			std::cout << "No. of Foreign keys:\t" << k << std::endl;
 			std::cout << std::endl;
 		}
 		
@@ -248,7 +248,6 @@ catch(std::exception E)
 {
 	std::cout << "Exception encountered!\n\n";
 }
-*/
 session.transaction().commit();
 std::cout<<"--------------------------\n\n\n"<<std::endl;
 //Prevent unnecessary execution of code.
