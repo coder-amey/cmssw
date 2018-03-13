@@ -186,7 +186,66 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   coral::ICursor& fillDataCursor2 = fillDataQuery2->execute();
   //initialize loop variables
   float delivLumi = 0., recLumi = 0.;
-	
+
+//CODE FOR DUMPING SCHEMA DESCRIPTION.
+//Initializing the CMS_BEAM_COND schema.
+coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
+session.transaction().start( true );
+std::cout<<"\n\n\n--------------------------"<<std::endl;
+std::cout << "Qurying CMS_DCS_ENV_PVSS_COND schema:\n";
+std::set<std::string> List = S.listTables();
+std::cout << "Schema Description:\n";
+std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
+std::set<std::string>::iterator I;
+for(I = List.begin(); I != List.end(); ++I)
+    std::cout << '\t' << *I << std::endl;
+std::cout << std::endl; 1
+std::cout << "\nDetailed Table Description:\nTable Name:\t\tNo. of Columns:\n(Column Details follow.)" << std::endl;
+for(I = List.begin(); I != List.end(); ++I)
+{
+    try{
+			coral::ITable& fillTable = S.tableHandle(*I);
+			const coral::ITableDescription& description = fillTable.description();
+			int c = description.numberOfColumns();
+			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
+			for(int i = 0; i < c; i++)
+			{
+				const coral::IColumn& col = description.columnDescription(i);
+				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
+			}
+			std::cout << std::endl;
+		}
+		
+		catch(std::exception E)
+		{
+				std::cout << "Exception encountered for table:  " << *I << "\n\n";
+		}
+}
+/* try{
+			coral::ITable& fillTable = S.tableHandle("CMS_LHC_LUMIPERBUNCH");
+			const coral::ITableDescription& description = fillTable.description();
+			int c = description.numberOfColumns();
+			for(int i = 0; i < c; i++)
+			{
+				const coral::IColumn& col = description.columnDescription(i);
+				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
+			}
+			int k = description.numberOfForeignKeys();
+			std::cout << "No. of Foreign keys:\t" << k << std::endl;
+			std::cout << std::endl;
+		}
+		
+catch(std::exception E)
+{
+	std::cout << "Exception encountered!\n\n";
+}
+*/
+session.transaction().commit();
+std::cout<<"--------------------------\n\n\n"<<std::endl;
+
+//Prevent unnecessary execution of code.
+//Note remove the while loop to populate the database.
+	while( fillDataCursor.next() );
 
   //loop over the cursor where the result of the query were fetched
   while( fillDataCursor.next() ) {
