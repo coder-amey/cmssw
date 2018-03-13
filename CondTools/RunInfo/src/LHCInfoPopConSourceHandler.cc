@@ -17,6 +17,10 @@
 #include <utility>
 #include <vector>
 
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/ITableDescription.h"
+#include "RelationalAccess/IColumn.h"
+
 LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler( edm::ParameterSet const & pset ):
   m_debug( pset.getUntrackedParameter<bool>( "debug", false ) )
   ,m_firstFill( (unsigned short)pset.getUntrackedParameter<unsigned int>( "firstFill", 1 ) )
@@ -199,7 +203,7 @@ std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
 std::set<std::string>::iterator I;
 for(I = List.begin(); I != List.end(); ++I)
     std::cout << '\t' << *I << std::endl;
-std::cout << std::endl; 1
+std::cout << std::endl;
 std::cout << "\nDetailed Table Description:\nTable Name:\t\tNo. of Columns:\n(Column Details follow.)" << std::endl;
 for(I = List.begin(); I != List.end(); ++I)
 {
