@@ -194,8 +194,12 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   float delivLumi = 0., recLumi = 0.;
 
 //CODE FOR DUMPING SCHEMA DESCRIPTION.
-//Initializing the CMS_BEAM_COND schema.
-coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
+//Initializing the CMS_DCS_ENV_PVSS_COND schema.
+  cond::persistency::Session session2 = connection.createSession( std::string("oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"), false );
+  //run the first query against the schema logging fill information
+  coral::ISchema& S = session2.nominalSchema();
+  //start the transaction against the fill logging schema
+  //coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
 session.transaction().start( true );
 std::cout<<"\n\n\n--------------------------"<<std::endl;
 std::cout << "Qurying CMS_DCS_ENV_PVSS_COND schema:\n";
