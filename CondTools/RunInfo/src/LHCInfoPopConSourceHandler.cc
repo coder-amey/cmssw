@@ -508,9 +508,12 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	//FROM clause
 	ECALDataQuery->addToTableList( std::string( "BEAM_PHASE" ) );
 	//SELECT clause 
-	ECALDataQuery->addToOutputList( std::string( "DIP_value" ) );
+/*	ECALDataQuery->addToOutputList( std::string( "DIP_value" ) );
 	ECALDataQuery->addToOutputList( std::string( "element_nr" ) );
 	ECALDataQuery->addToOutputList( std::string( "CHANGE_DATE" ) );
+*/
+	ECALDataQuery->addToOutputList( std::string( "COUNT(DISTINCT DIP_value)" ) );
+	ECALDataQuery->addToOutputList( std::string( "COUNT(DISTINCT CHANGE_DATE)" ) );
 	//WHERE CLAUSE
 	coral::AttributeList ECALDataBindVariables;
 	/*ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
@@ -521,13 +524,16 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
 	//ORDER BY clause
 	*/
-	ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
+	//ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
 	//define query output
 	coral::AttributeList ECALDataOutput;
-	ECALDataOutput.extend<std::string>( std::string( "DIP_value" ) );
+/*	ECALDataOutput.extend<std::string>( std::string( "DIP_value" ) );
 	ECALDataOutput.extend<float>( std::string( "element_nr" ) );
 	ECALDataOutput.extend<coral::TimeStamp>( std::string( "CHANGE_DATE" ) );
 	ECALDataQuery->limitReturnedRows( 14256 ); //3564 entries per vector.
+*/
+	ECALDataOutput.extend<int>( std::string( "DIPvals" ) );
+	ECALDataOutput.extend<int>( std::string( "Dates" ) );
 	ECALDataQuery->defineOutput( ECALDataOutput );
 	//execute the query
 	coral::ICursor& ECALDataCursor = ECALDataQuery->execute();
