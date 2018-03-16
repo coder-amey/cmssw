@@ -203,7 +203,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 session2.transaction().start( true );
 std::cout<<"\n\n\n--------------------------"<<std::endl;
 std::cout << "Querying CMS_DCS_ENV_PVSS_COND schema:\n";
-/*std::set<std::string> List = S.listViews();
+std::set<std::string> List = S.listViews();
 std::cout << "Schema Description:\n";
 std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
 std::set<std::string>::iterator I;
@@ -215,12 +215,12 @@ for(I = List.begin(); I != List.end(); ++I)
 {
     try{
 			coral::IView& fillTable = S.viewHandle(*I);
-			*/
+			
 			/*const coral::ITableDescription& description = fillTable.description();
 			int c = description.numberOfColumns();
 			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
 			*/
-			/*
+			
 			int c = fillTable.numberOfColumns();
 			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
 			for(int i = 0; i < c; i++)
@@ -231,19 +231,19 @@ for(I = List.begin(); I != List.end(); ++I)
 			std::cout << std::endl;
 		}
 		
-		catch(std::exception E)
+		catch(coral::ViewNotExistingException E)
 		{
-				std::cout << "Exception encountered for table:  " << *I << "\n\n";
+			std::cout << E.what() << " exception encountered!\n\n";
 		}
 }
-*/
+/*
 try{
 			coral::ITable& fillTable = S.tableHandle(std::string("BEAM_PHASE"));
-
+*/
 			/*coral::IView& fillTable = S.viewHandle(std::string("BEAM_PHASE"));
 			int c = fillTable.numberOfColumns();
 			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
-			*/
+			*//*
 			const coral::ITableDescription& description = fillTable.description();
 			int c = description.numberOfColumns();
 			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
@@ -259,7 +259,7 @@ try{
 catch(coral::ViewNotExistingException E)
 {
 	std::cout << E.what() << " exception encountered!\n\n";
-}
+}*/
 session2.transaction().commit();
 std::cout<<"--------------------------\n\n\n"<<std::endl;
 //Prevent unnecessary execution of code.
