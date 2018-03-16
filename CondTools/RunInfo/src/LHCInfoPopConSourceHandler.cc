@@ -21,6 +21,7 @@
 #include "RelationalAccess/IView.h"
 #include "RelationalAccess/ITableDescription.h"
 #include "RelationalAccess/IColumn.h"
+#include "RelationalAccess/SchemaException.h"
 
 LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler( edm::ParameterSet const & pset ):
   m_debug( pset.getUntrackedParameter<bool>( "debug", false ) )
@@ -233,20 +234,27 @@ for(I = List.begin(); I != List.end(); ++I)
 }
 */
 try{
-			coral::IView& fillTable = S.viewHandle(std::string("BEAM_PHASE"));
+			coral::ITable& fillTable = S.tableHandle(std::string("BEAM_PHASE"));
+
+			/*coral::IView& fillTable = S.viewHandle(std::string("BEAM_PHASE"));
 			int c = fillTable.numberOfColumns();
 			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
+			*/
+			const coral::ITableDescription& description = fillTable.description();
+			int c = description.numberOfColumns();
+			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
+
 			for(int i = 0; i < c; i++)
 			{
-				const coral::IColumn& col = fillTable.column(i);
+				const coral::IColumn& col = description.columnDescription(i);
 				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
 			}
 			std::cout << std::endl;
 		}
 		
-catch(std::exception E)
+catch(coral::ViewNotExistingException E)
 {
-	std::cout << "Exception encountered!\n\n";
+	std::cout << E.what() << " exception encountered!\n\n";
 }
 session.transaction().commit();
 std::cout<<"--------------------------\n\n\n"<<std::endl;
@@ -579,7 +587,7 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 	ECALDataQuery->addToOutputList( std::string( "VALUE_NUMBER" ) );
 	ECALDataQuery->addToOutputList( std::string( "COUNT(VALUE_NUMBER)" ) );
 	//WHERE CLAUSE
-	/*coral::AttributeList ECALDataBindVariables;
+	coral::AttributeList ECALDataBindVariables;
 	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
     	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
     	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
@@ -608,8 +616,7 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 		    ECALDataCursor.currentRow().toOutputStream( ECAL );
 		    edm::LogInfo( m_name ) << ECAL.str() << "\nfrom " << m_name << "::getNewObjects";
 		}
-		/*
-		coral::Attribute const & lhcStateAttribute = ECALDataCursor.currentRow()[ std::string( "LHC_STATE" ) ];
+		
 		if( lhcStateAttribute.isNull() ) {
 			lhcState = "";
 		} else {
