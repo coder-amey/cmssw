@@ -250,7 +250,7 @@ try{
 */
 			for(int i = 0; i < c; i++)
 			{
-				const coral::IColumn& col = description.columnDescription(i);
+				const coral::IColumn& col = fillTable.column(i);
 				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
 			}
 			std::cout << std::endl;
