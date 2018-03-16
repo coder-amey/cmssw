@@ -510,20 +510,23 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	//SELECT clause 
 	ECALDataQuery->addToOutputList( std::string( "DIP_value" ) );
 	ECALDataQuery->addToOutputList( std::string( "element_nr" ) );
+	ECALDataQuery->addToOutputList( std::string( "CHANGE_DATE" ) );
 	//WHERE CLAUSE
 	coral::AttributeList ECALDataBindVariables;
-	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
+	/*ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
 	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
 	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
 	ECALDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
 	conditionStr = std::string( "CHANGE_DATE BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp AND (DIP_value LIKE '%beamPhaseMean%' OR DIP_value LIKE '%cavPhaseMean%') " );
 	ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
 	//ORDER BY clause
+	*/
 	ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
 	//define query output
 	coral::AttributeList ECALDataOutput;
 	ECALDataOutput.extend<std::string>( std::string( "DIP_value" ) );
 	ECALDataOutput.extend<float>( std::string( "element_nr" ) );
+	ECALDataOutput.extend<coral::TimeStamp>( std::string( "CHANGE_DATE" ) );
 	ECALDataQuery->limitReturnedRows( 14256 ); //3564 entries per vector.
 	ECALDataQuery->defineOutput( ECALDataOutput );
 	//execute the query
@@ -541,7 +544,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 		    std::ostringstream ECAL;
 		    ECALDataCursor.currentRow().toOutputStream( ECAL );
 		    edm::LogInfo( m_name ) << ECAL.str() << "\nfrom " << m_name << "::getNewObjects";
-		}
+		}/*
 		coral::Attribute const & dipValAttribute = ECALDataCursor.currentRow()[ std::string( "DIP_value" ) ];
 		if( dipValAttribute.isNull() ) {
 			dipVal = "";
@@ -569,7 +572,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 			default:
 				break;
 			}
-		}
+		}*/
 	}
 	//commit the transaction against the ECAL schema
 	session2.transaction().commit();
