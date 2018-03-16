@@ -17,12 +17,6 @@
 #include <utility>
 #include <vector>
 
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/IView.h"
-#include "RelationalAccess/ITableDescription.h"
-#include "RelationalAccess/IColumn.h"
-#include "RelationalAccess/SchemaException.h"
-
 LHCInfoPopConSourceHandler::LHCInfoPopConSourceHandler( edm::ParameterSet const & pset ):
   m_debug( pset.getUntrackedParameter<bool>( "debug", false ) )
   ,m_firstFill( (unsigned short)pset.getUntrackedParameter<unsigned int>( "firstFill", 1 ) )
@@ -192,80 +186,8 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   coral::ICursor& fillDataCursor2 = fillDataQuery2->execute();
   //initialize loop variables
   float delivLumi = 0., recLumi = 0.;
-
-//CODE FOR DUMPING SCHEMA DESCRIPTION.
-//Initializing the CMS_DCS_ENV_PVSS_COND schema.
-  cond::persistency::Session session2 = connection.createSession( std::string("oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"), false );
-  //run the first query against the schema logging fill information
-  coral::ISchema& S = session2.nominalSchema();
-  //start the transaction against the fill logging schema
-  //coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
-session2.transaction().start( true );
-std::cout<<"\n\n\n--------------------------"<<std::endl;
-std::cout << "Querying CMS_DCS_ENV_PVSS_COND schema:\n";
-std::set<std::string> List = S.listViews();
-std::cout << "Schema Description:\n";
-std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
-std::set<std::string>::iterator I;
-/*for(I = List.begin(); I != List.end(); ++I)
-    std::cout << '\t' << *I << std::endl;
-std::cout << std::endl;
-std::cout << "\nDetailed Table Description:\nTable Name:\t\tNo. of Columns:\n(Column Details follow.)" << std::endl;
-for(I = List.begin(); I != List.end(); ++I)
-{
-    try{
-			coral::IView& fillTable = S.viewHandle(*I);
-			*/
-			/*const coral::ITableDescription& description = fillTable.description();
-			int c = description.numberOfColumns();
-			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
-			*/
-			/*
-			int c = fillTable.numberOfColumns();
-			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
-			for(int i = 0; i < c; i++)
-			{
-				const coral::IColumn& col = fillTable.column(i);
-				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
-			}
-			std::cout << std::endl;
-		}
-		
-		catch(coral::ViewNotExistingException E)
-		{
-			std::cout << E.what() << " exception encountered!\n\n";
-		}
-}
-*/
-try{
-			//coral::ITable& fillTable = S.tableHandle(std::string("BEAM_PHASE"));
-
-			coral::IView& fillTable = S.viewHandle(std::string("BEAM_PHASE"));
-			int c = fillTable.numberOfColumns();
-			std::cout << "\n" << fillTable.name() << "\t\t" << c << std::endl;
-			/*
-			const coral::ITableDescription& description = fillTable.description();
-			int c = description.numberOfColumns();
-			std::cout << "\n" << description.name() << "\t\t" << c << std::endl;
-*/
-			for(int i = 0; i < c; i++)
-			{
-				const coral::IColumn& col = fillTable.column(i);
-				std::cout << "\t" << col.name() << " (" << col.type() << ")" << std::endl;
-			}
-			std::cout << std::endl;
-		}
-		
-catch(coral::ViewNotExistingException E)
-{
-	std::cout << E.what() << " exception encountered!\n\n";
-}
-session2.transaction().commit();
-std::cout<<"--------------------------\n\n\n"<<std::endl;
-//Prevent unnecessary execution of code.
-//Note remove the while loop to populate the database.
-	while( fillDataCursor.next() );
 	
+
   //loop over the cursor where the result of the query were fetched
   while( fillDataCursor.next() ) {
     if( m_debug ) {
@@ -574,84 +496,84 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 	}
 	//commit the transaction against the CTPPS schema
 	session.transaction().commit();
-	  
-	/*
-	//run the sixth query against the ECAL schema
+	
+	//run the sixth query against the CMS_DCS_ENV_PVSS_COND schema
+	cond::persistency::Session session2 = connection.createSession( std::string("oracle://cms_orcon_adg/CMS_DCS_ENV_PVSS_COND"), false );
 	//Initializing the CMS_DCS_ENV_PVSS_COND schema.
-	coral::ISchema& ECAL = session.coralSession().schema("CMS_DCS_ENV_PVSS_COND");
-	session.transaction().start( true );
+	coral::ISchema& ECAL = session2.nominalSchema();
+	//start the transaction against the fill logging schema
+	session2.transaction().start( true );
 	//execute query for ECAL Data
 	std::unique_ptr<coral::IQuery> ECALDataQuery( ECAL.newQuery() );
 	//FROM clause
-	ECALDataQuery->addToTableList( std::string( "CMSFWMAGNET_LV" ) );
-	//SELECT clause
-	ECALDataQuery->addToOutputList( std::string( "DPID" ) );
-	ECALDataQuery->addToOutputList( std::string( "CHANGE_DATE" ) );
-	ECALDataQuery->addToOutputList( std::string( "VALUE_STRING" ) );
-	ECALDataQuery->addToOutputList( std::string( "VALUE_NUMBER" ) );
-	ECALDataQuery->addToOutputList( std::string( "COUNT(VALUE_NUMBER)" ) );
+	ECALDataQuery->addToTableList( std::string( "BEAM_PHASE" ) );
+	//SELECT clause 
+	ECALDataQuery->addToOutputList( std::string( "DIP_value" ) );
+	ECALDataQuery->addToOutputList( std::string( "element_nr" ) );
 	//WHERE CLAUSE
 	coral::AttributeList ECALDataBindVariables;
 	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
-    	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
-    	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
-    	ECALDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
-	conditionStr = std::string( "CHANGE_DATE BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp" );
-	//ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
+	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
+	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
+	ECALDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
+	conditionStr = std::string( "CHANGE_DATE BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp AND (DIP_value LIKE '%beamPhaseMean%' OR DIP_value LIKE '%cavPhaseMean%') " );
+	ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
 	//ORDER BY clause
 	ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
 	//define query output
 	coral::AttributeList ECALDataOutput;
-	ECALDataOutput.extend<float>( std::string( "DPID" ) );
-	ECALDataOutput.extend<coral::TimeStamp>( std::string( "CHANGE_DATE" ) );
-	ECALDataOutput.extend<std::string>( std::string( "VALUE_STRING" ) );
-	ECALDataOutput.extend<float>( std::string( "VALUE_NUMBER" ) );
-	ECALDataOutput.extend<int>( std::string( "COUNT" ) );
-	//!!!!!!!!!!!!!!!!!!!!!!!!ECALDataQuery->limitReturnedRows( 1 ); //Only one entry per payload.
+	ECALDataOutput.extend<std::string>( std::string( "DIP_value" ) );
+	ECALDataOutput.extend<float>( std::string( "element_nr" ) );
+	ECALDataQuery->limitReturnedRows( 14256 ); //3564 entries per vector.
 	ECALDataQuery->defineOutput( ECALDataOutput );
 	//execute the query
 	coral::ICursor& ECALDataCursor = ECALDataQuery->execute();
-	//!!!!!!!!!!!!!!!std::string lhcState, lhcComment, ECALStatus;
-	//!!!!!!!!!!!!!!!!!unsigned int lumiSection;
+	std::vector<float> beam1VC, beam2VC, beam1RF, beam2RF;
+	std::string dipVal;
+	std::map<std::string, int> vecMap;
+	vecMap[std::string("Beam1/beamPhaseMean")] = 1;
+	vecMap[std::string("Beam2/beamPhaseMean")] = 2;
+	vecMap[std::string("Beam1/cavPhaseMean")] = 3;
+	vecMap[std::string("Beam2/cavPhaseMean")] = 4;
 
-	if( ECALDataCursor.next() ) {
-		if( m_debug || true ) { //m_debug
+	while( ECALDataCursor.next() ) {
+		if( m_debug || true) {
 		    std::ostringstream ECAL;
 		    ECALDataCursor.currentRow().toOutputStream( ECAL );
 		    edm::LogInfo( m_name ) << ECAL.str() << "\nfrom " << m_name << "::getNewObjects";
 		}
-		
-		if( lhcStateAttribute.isNull() ) {
-			lhcState = "";
+		coral::Attribute const & dipValAttribute = ECALDataCursor.currentRow()[ std::string( "DIP_value" ) ];
+		if( dipValAttribute.isNull() ) {
+			dipVal = "";
 		} else {
-			lhcState = lhcStateAttribute.data<std::string>();
+			dipVal = dipValAttribute.data<std::string>();
 		}
 
-		coral::Attribute const & lhcCommentAttribute = ECALDataCursor.currentRow()[ std::string( "LHC_COMMENT" ) ];
-		if( lhcCommentAttribute.isNull() ) {
-			lhcComment = "";
-		} else {
-			lhcComment = lhcCommentAttribute.data<std::string>();
-		}
-
-		coral::Attribute const & ECALStatusAttribute = ECALDataCursor.currentRow()[ std::string( "ECAL_STATUS" ) ];
-		if( ECALStatusAttribute.isNull() ) {
-			ECALStatus = "";
-		} else {
-			ECALStatus = ECALStatusAttribute.data<std::string>();
-		}
-
-		coral::Attribute const & lumiSectionAttribute = ECALDataCursor.currentRow()[ std::string( "LUMI_SECTION" ) ];
-		if( lumiSectionAttribute.isNull() ) {
-			lumiSection = 0;
-		} else {
-			lumiSection = lumiSectionAttribute.data<int>();
+		coral::Attribute const & elementNrAttribute = ECALDataCursor.currentRow()[ std::string( "element_nr" ) ];
+		if( elementNrAttribute.isNull() ) { } //Nothing to record.
+		else {
+			switch( vecMap[dipVal] )
+			{
+			case 1:
+				beam1VC.push_back(elementNrAttribute.data<float>());
+				break;
+			case 2:
+				beam2VC.push_back(elementNrAttribute.data<float>());
+				break;
+			case 3:
+				beam1RF.push_back(elementNrAttribute.data<float>());
+				break;
+			case 4:
+				beam1RF.push_back(elementNrAttribute.data<float>());
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	//commit the transaction against the ECAL schema
-	session.transaction().commit();*/
+	session2.transaction().commit();
 	  
-	continue; //Prevent fill.  
     //store dummy fill information if empty fills are found beetween the two last ones in stable beams
     afterPreviousFillEndTime  = cond::time::pack( std::make_pair( cond::time::unpack( previousFillEndTime ).first, cond::time::unpack( previousFillEndTime ).second + 1 ) );
     beforeStableBeamStartTime = cond::time::pack( std::make_pair( cond::time::unpack( stableBeamStartTime ).first, cond::time::unpack( stableBeamStartTime ).second - 1 ) );
@@ -674,8 +596,6 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
       return;
     }
     //construct an instance of LHCInfo and set its values
-    std::vector<float> dummy(1, 0.); //The ECal vectors will replace the test dummy.
-    
     LHCInfo *lhcInfo = new LHCInfo( currentFill ); 
     lhcInfo->setInfo( const_cast<unsigned short const &>( bunches1 )
 			 , const_cast<unsigned short const &>( bunches2 )
@@ -700,10 +620,10 @@ std::cout<<"--------------------------\n\n\n"<<std::endl;
 			 , const_cast<std::string const &>( lhcComment )
 			 , const_cast<std::string const &>( ctppsStatus )
 			 , const_cast<unsigned int const &>( lumiSection )
-			 , const_cast<std::vector<float> const &>( dummy )
-			 , const_cast<std::vector<float> const &>( dummy )
-			 , const_cast<std::vector<float> const &>( dummy )
-			 , const_cast<std::vector<float> const &>( dummy )
+			 , const_cast<std::vector<float> const &>( beam1VC )
+			 , const_cast<std::vector<float> const &>( beam2VC )
+			 , const_cast<std::vector<float> const &>( beam1RF )
+			 , const_cast<std::vector<float> const &>( beam2RF )
 		 	 , const_cast<std::bitset<LHCInfo::bunchSlots+1> const &>( bunchConfiguration1 )
 			 , const_cast<std::bitset<LHCInfo::bunchSlots+1> const &>( bunchConfiguration2 )  );
     //store this payload
