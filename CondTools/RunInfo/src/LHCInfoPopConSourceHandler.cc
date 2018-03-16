@@ -200,9 +200,9 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
   coral::ISchema& S = session2.nominalSchema();
   //start the transaction against the fill logging schema
   //coral::ISchema& S = session.coralSession().schema( "CMS_DCS_ENV_PVSS_COND" );
-session.transaction().start( true );
+session2.transaction().start( true );
 std::cout<<"\n\n\n--------------------------"<<std::endl;
-std::cout << "Qurying CMS_DCS_ENV_PVSS_COND schema:\n";
+std::cout << "Querying CMS_DCS_ENV_PVSS_COND schema:\n";
 /*std::set<std::string> List = S.listViews();
 std::cout << "Schema Description:\n";
 std::cout << "Schema Name: " << S.schemaName() << "\nTables:" << std::endl;
@@ -260,7 +260,7 @@ catch(coral::ViewNotExistingException E)
 {
 	std::cout << E.what() << " exception encountered!\n\n";
 }
-session.transaction().commit();
+session2.transaction().commit();
 std::cout<<"--------------------------\n\n\n"<<std::endl;
 //Prevent unnecessary execution of code.
 //Note remove the while loop to populate the database.
