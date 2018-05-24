@@ -504,6 +504,7 @@ bool LHCInfoPopConSourceHandler::getEcalData(  cond::persistency::Session& sessi
   //SELECT clause 
   ECALDataQuery->addToOutputList( std::string( "DIP_value" ) );
   ECALDataQuery->addToOutputList( std::string( "element_nr" ) );
+  ECALDataQuery->addToOutputList( std::string( "VALUE_NUMBER" ) );
   //WHERE CLAUSE
   coral::AttributeList ECALDataBindVariables;
   std::string conditionStr = std::string( "DIP_value LIKE '%beamPhaseMean%' OR DIP_value LIKE '%cavPhaseMean%'" );
@@ -512,11 +513,11 @@ bool LHCInfoPopConSourceHandler::getEcalData(  cond::persistency::Session& sessi
   //ORDER BY clause
   ECALDataQuery->addToOrderList( std::string( "CHANGE_DATE" ) );
   ECALDataQuery->addToOrderList( std::string( "DIP_value" ) );
-  ECALDataQuery->addToOrderList( std::string( "element_nr" ) );
+  ECALDataQuery->addToOrderList( std::string( "VALUE_NUMBER" ) );
   //define query output
   coral::AttributeList ECALDataOutput;
   ECALDataOutput.extend<std::string>( std::string( "DIP_value" ) );
-  ECALDataOutput.extend<float>( std::string( "element_nr" ) );
+  ECALDataOutput.extend<float>( std::string( "VALUE_NUMBER" ) );
   ECALDataQuery->limitReturnedRows( 14256 ); //3564 entries per vector.
   ECALDataQuery->defineOutput( ECALDataOutput );
   //execute the query
@@ -541,21 +542,21 @@ bool LHCInfoPopConSourceHandler::getEcalData(  cond::persistency::Session& sessi
       dipVal = dipValAttribute.data<std::string>();
     }
     
-    coral::Attribute const & elementNrAttribute = ECALDataCursor.currentRow()[ std::string( "element_nr" ) ];
-    if( !elementNrAttribute.isNull() ){
+    coral::Attribute const & valAttribute = ECALDataCursor.currentRow()[ std::string( "VALUE_NUMBER" ) ];
+    if( !valAttribute.isNull() ){
       switch( vecMap[dipVal] )
 	{
 	case 1:
-	  beam1VC.push_back(elementNrAttribute.data<float>());
+	  beam1VC.push_back(valAttribute.data<float>());
 	  break;
 	case 2:
-	  beam2VC.push_back(elementNrAttribute.data<float>());
+	  beam2VC.push_back(valAttribute.data<float>());
 	  break;
 	case 3:
-	  beam1RF.push_back(elementNrAttribute.data<float>());
+	  beam1RF.push_back(valAttribute.data<float>());
 	  break;
 	case 4:
-	  beam2RF.push_back(elementNrAttribute.data<float>());
+	  beam2RF.push_back(valAttribute.data<float>());
 	  break;
 	default:
 	  break;
@@ -567,6 +568,19 @@ bool LHCInfoPopConSourceHandler::getEcalData(  cond::persistency::Session& sessi
     payload.setBeam2VC(beam2VC);
     payload.setBeam1RF(beam1RF);
     payload.setBeam2RF(beam2RF);
+
+	std::cout << "Testing the ECAL values:\nBeam1VC:\n";
+	for(auto i = beam1VC.begin(); i != beam1VC.end(); i++)
+		std::cout << *i << "\t";	
+	std::cout << "\n\n\nBeam2VC:\n";
+	for(auto i = beam2VC.begin(); i != beam2VC.end(); i++)
+			std::cout << *i << "\t";
+	std::cout << "\n\n\nBeam1RF:\n";
+	for(auto i = beam1RF.begin(); i != beam1RF.end(); i++)
+		std::cout << *i << "\t";	
+	std::cout << "\n\n\nBeam2RF:\n";
+	for(auto i = beam2RF.begin(); i != beam2RF.end(); i++)
+		std::cout << *i << "\t";	
   }
   return ret;
 }

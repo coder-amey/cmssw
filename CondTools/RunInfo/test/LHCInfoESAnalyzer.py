@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('timestamp'),
-    firstValue = cms.uint64(6477060826480649336),
-    lastValue = cms.uint64(6477060826480649336),
+    firstValue = cms.uint64(6558649321456213728),
+    lastValue = cms.uint64(6558649321456999999),
     interval = cms.uint64( 3600 << 32 )
 )
 
@@ -24,7 +24,7 @@ process.rn = cms.ESSource("PoolDBESSource",
     timetype = cms.string('timestamp'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('LHCInfoRcd'),
-        tag = cms.string('lhcinfo_test')
+        tag = cms.string('LHCInfo_PopCon_test')
     ))
 )
 
